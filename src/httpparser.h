@@ -17,7 +17,7 @@ class HTTPParser {
 public:
     virtual ~HTTPParser() = default;
 
-    size_t execute(const char *, size_t);
+    size_t execute(const char* buf,size_t sz);
 
 protected:
     explicit HTTPParser(http_parser_type t);

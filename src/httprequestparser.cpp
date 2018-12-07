@@ -3,9 +3,10 @@
 //
 
 #include "httprequestparser.h"
+static std::string last_head;
 
-HttpRequestParser::HttpRequestParser()
-        :HTTPParser(HTTP_REQUEST),message_finished_(false)
+HttpRequestParser::HttpRequestParser(HttpRequest &request)
+        :HTTPParser(HTTP_REQUEST),request_(request),message_finished_(false)
 {
 }
 
@@ -14,24 +15,24 @@ int HttpRequestParser::on_message_begin() {
 }
 
 int HttpRequestParser::on_url(const char *buf, size_t sz) {
-    request_.url=std::string(buf,sz);
-    request_.method=http_method_str((http_method)parser_.method);
-    request_.major=parser_.http_major;
-    request_.minor=parser_.http_minor;
+    request_.url_=std::string(buf,sz);
+    request_.method_=http_method_str((http_method)parser_.method);
     return 0;
 }
 
-int HttpRequestParser::on_status(const char *buf, size_t sz) {
+int HttpRequestParser::on_status(const char *, size_t ) {
     return 0;
 }
 
 int HttpRequestParser::on_header_field(const char *buf, size_t sz) {
-    request_.headerList.emplace_back(std::string{buf,sz},"");
+    last_head=std::string{buf,sz};
+    request_.headers_.emplace(last_head,"");
+
     return 0;
 }
 
 int HttpRequestParser::on_header_value(const char *buf, size_t sz) {
-    request_.headerList.back().value=std::string{buf,sz};
+    request_.headers_[last_head]=std::string{buf,sz};
     return 0;
 }
 
@@ -40,7 +41,7 @@ int HttpRequestParser::on_headers_complete() {
 }
 
 int HttpRequestParser::on_body(const char *buf, size_t sz) {
-    request_.body=std::string{buf,sz};
+    request_.body_=std::string{buf,sz};
     return 0;
 }
 

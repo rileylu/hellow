@@ -10,7 +10,7 @@
 
 class HttpRequestParser : public HTTPParser {
 public:
-    HttpRequestParser();
+    explicit HttpRequestParser(HttpRequest &);
 
     bool isMessageFinished() const {
         return message_finished_;
@@ -40,7 +40,7 @@ private:
     int on_chunk_complete() override;
 
 private:
-    HttpRequest request_;
+    HttpRequest& request_;
     bool message_finished_;
 
 };
